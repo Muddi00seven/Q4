@@ -1,4 +1,4 @@
-import { setupWeb3, setupContract, setupEthereumAccounts,setupAdopters } from './actions';
+import { setupWeb3, setupContract, setupEthereumAccounts, setupAdopters } from './actions';
 import Web3 from 'web3';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../contract/petShop'
 
@@ -12,8 +12,8 @@ export const LoadBlockchain = async (dispatch) => {
             dispatch(setupContract(contract));
             const accounts = await web3.eth.getAccounts();
             dispatch(setupEthereumAccounts(accounts));
-           let adopters = await getAdopters(contract);
-           dispatch(setupAdopters(adopters))
+            await getAdopters(contract, dispatch);
+            //    dispatch(setupAdopters(adopters))
         }
     }
     catch (error) {
@@ -22,11 +22,13 @@ export const LoadBlockchain = async (dispatch) => {
 }
 
 
-export const getAdopters = async (contract) => {
+export const getAdopters = async (contract, dispatch) => {
     try {
-        let receipt = await contract.methods.getAdopters().call();
-        console.log("receipt of getAdopter", receipt);
-        return receipt;
+        let adopters = await contract.methods.getAdopters().call();
+        console.log("adopters of getAdopter", adopters);
+        dispatch(setupAdopters(adopters))
+
+        return adopters;
     }
     catch (error) {
         console.log("error getAdopters", error)
@@ -39,6 +41,7 @@ export const setAdopter = async (contract, accounts, id) => {
         let receipt = await contract.methods.adopt(id).send({
             from: accounts[0]
         });
+
         console.log("receipt of getAdopter", receipt);
     }
     catch (error) {
